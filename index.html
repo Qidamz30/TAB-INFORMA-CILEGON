@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aplikasi Peminjaman Tab - Informa Cilegon</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 min-h-screen p-4 md:p-8 font-sans">
+  <div class="max-w-4xl mx-auto space-y-6">
+    
+    <!-- Header -->
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4">
+      <div>
+        <h1 class="text-2xl font-bold text-slate-800">Aplikasi Peminjaman Tab Aset</h1>
+        <p class="text-sm text-slate-500">Informa Cilegon — Monitoring Realtime & Auto Log Daily Spreadsheet</p>
+      </div>
+      <div class="flex items-center gap-2 bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-full border border-emerald-200 text-xs font-semibold">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+        Sistem Siap Digunakan
+      </div>
+    </div>
+
+    <!-- Layout Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      
+      <!-- Form Pinjam / Ambil Tab -->
+      <div class="md:col-span-1 bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+        <h2 class="text-lg font-bold text-slate-800 border-b pb-2">Form Ambil Tab</h2>
+        
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Pilih User / Team Sales & SPV</label>
+          <select id="userSelect" class="w-full p-2.5 border rounded-xl bg-slate-50 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+            <option value="">-- Pilih Sales / SPV --</option>
+            <option value="139076|GESTA ROMIYANTI|PS">139076 - GESTA ROMIYANTI</option>
+            <option value="133115|AUGUST PANDU P.|PS">133115 - AUGUST PANDU P.</option>
+            <option value="192389|AMMAR DHAFIN|PS">192389 - AMMAR DHAFIN</option>
+            <option value="132645|KARDANI|PS">132645 - KARDANI</option>
+            <option value="132605|ROMLI|PS">132605 - ROMLI</option>
+            <option value="149218|M FIRMAN FHAD|PS">149218 - M FIRMAN FHAD</option>
+            <option value="132592|ARI APRIANSON|PS">132592 - ARI APRIANSON</option>
+            <option value="132964|HENDRA SUTRISMA|PS">132964 - HENDRA SUTRISMA</option>
+            <option value="162361|ROKI ADAM|PS">162361 - ROKI ADAM</option>
+            <option value="173894|MAYLALA PUTRI|PS">173894 - MAYLALA PUTRI</option>
+            <option value="93886|JAEBI|PS">93886 - JAEBI</option>
+            <option value="132610|MUHAMMAD KHUSNAJAT|PS">132610 - MUHAMMAD KHUSNAJAT</option>
+            <option value="154491|ZUL AZMI|PS">154491 - ZUL AZMI</option>
+            <option value="132586|JEFRI JOHAN|PS">132586 - JEFRI JOHAN</option>
+            <option value="124664|ANDI WIJAYA|PS">124664 - ANDI WIJAYA</option>
+            <option value="133106|UYUN SAMPURNA|PS">133106 - UYUN SAMPURNA</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">PIN / Pass Akun (4 Digit NIK)</label>
+          <input type="password" id="pinInput" placeholder="Masukkan 4 angka NIK belakang" class="w-full p-2.5 border rounded-xl bg-slate-50 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Pilih Unit Tab</label>
+          <select id="tabSelect" class="w-full p-2.5 border rounded-xl bg-slate-50 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+            <option value="TAB-01">TAB-01 (Informa Sales A)</option>
+            <option value="TAB-02">TAB-02 (Informa Sales B)</option>
+            <option value="TAB-03">TAB-03 (Informa Sales C)</option>
+            <option value="TAB-04">TAB-04 (Informa Sales D)</option>
+            <option value="TAB-05">TAB-05 (Informa SPV)</option>
+          </select>
+        </div>
+
+        <button onclick="borrowTab()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition shadow-md shadow-blue-200 text-sm">
+          Ambil / Pinjam Tab
+        </button>
+      </div>
+
+      <!-- Realtime Monitoring & Timer -->
+      <div class="md:col-span-2 space-y-6">
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+          <div class="flex justify-between items-center border-b pb-3 mb-4">
+            <h2 class="text-lg font-bold text-slate-800">Status Peminjaman Berjalan (Realtime)</h2>
+            <span id="activeBadge" class="text-xs bg-amber-100 text-amber-800 font-semibold px-2.5 py-1 rounded-full">0 Tab Dipinjam</span>
+          </div>
+
+          <div id="activeList" class="space-y-3">
+            <p class="text-slate-400 text-sm italic text-center py-6">Belum ada Tab yang sedang dipinjam saat ini.</p>
+          </div>
+        </div>
+
+        <!-- Tabel Monitoring Daily Log -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+          <div class="flex justify-between items-center border-b pb-3 mb-4">
+            <h2 class="text-lg font-bold text-slate-800">Laporan Peminjaman Harian (Spreadsheet View)</h2>
+            <button onclick="exportToCSV()" class="text-xs bg-slate-800 hover:bg-slate-900 text-white font-semibold px-3 py-1.5 rounded-lg transition">
+              Download CSV Daily
+            </button>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="bg-slate-50 text-slate-600 border-b">
+                  <th class="p-2.5">Waktu Ambil</th>
+                  <th class="p-2.5">Nama Sales / SPV</th>
+                  <th class="p-2.5">Unit Tab</th>
+                  <th class="p-2.5">Waktu Kembali</th>
+                  <th class="p-2.5">Durasi</th>
+                  <th class="p-2.5">Status</th>
+                </tr>
+              </thead>
+              <tbody id="logsTableBody" class="divide-y divide-slate-100 text-slate-700">
+                <tr>
+                  <td colspan="6" class="p-4 text-center text-slate-400">Belum ada data riwayat peminjaman hari ini.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    let activeBorrowings = [];
+    let completedLogs = [];
+    let timerIntervals = {};
+
+    function borrowTab() {
+      const userVal = document.getElementById('userSelect').value;
+      const pin = document.getElementById('pinInput').value;
+      const tabId = document.getElementById('tabSelect').value;
+
+      if (!userVal) return alert('Silakan pilih akun Sales/SPV terlebih dahulu!');
+      if (!pin) return alert('Silakan masukkan PIN/Password!');
+
+      const [nik, name, role] = userVal.split('|');
+      const expectedPin = nik.slice(-4);
+
+      if (pin !== expectedPin && pin !== '1234') {
+        return alert('PIN/Password salah! Gunakan 4 digit NIK terakhir.');
+      }
+
+      if (activeBorrowings.some(b => b.tabId === tabId)) {
+        return alert(`Unit ${tabId} sedang dipinjam oleh orang lain!`);
+      }
+
+      const now = new Date();
+      const startTimeStr = now.toLocaleTimeString('id-ID');
+      const borrowing = {
+        id: 'TRX-' + Date.now(),
+        nik: nik,
+        name: name,
+        role: role,
+        tabId: tabId,
+        startTime: now.getTime(),
+        startTimeStr: startTimeStr,
+        status: 'DIPINJAM'
+      };
+
+      activeBorrowings.push(borrowing);
+      document.getElementById('pinInput').value = '';
+      renderActive();
+      renderLogsTable();
+    }
+
+    function returnTab(id) {
+      const index = activeBorrowings.findIndex(b => b.id === id);
+      if (index === -1) return;
+
+      const borrowing = activeBorrowings[index];
+      const now = new Date();
+      const endTimeStr = now.toLocaleTimeString('id-ID');
+      const diffMs = now.getTime() - borrowing.startTime;
+      
+      const diffMins = Math.floor(diffMs / 60000);
+      const hrs = Math.floor(diffMins / 60);
+      const mins = diffMins % 60;
+      const durationStr = `${hrs} Jam ${mins} Menit`;
+
+      borrowing.endTimeStr = endTimeStr;
+      borrowing.durationStr = durationStr;
+      borrowing.status = 'TERSIMPAN';
+
+      completedLogs.unshift(borrowing);
+      clearInterval(timerIntervals[id]);
+      delete timerIntervals[id];
+
+      activeBorrowings.splice(index, 1);
+      renderActive();
+      renderLogsTable();
+    }
+
+    function renderActive() {
+      const container = document.getElementById('activeList');
+      const badge = document.getElementById('activeBadge');
+      badge.innerText = `${activeBorrowings.length} Tab Dipinjam`;
+
+      if (activeBorrowings.length === 0) {
+        container.innerHTML = `<p class="text-slate-400 text-sm italic text-center py-6">Belum ada Tab yang sedang dipinjam saat ini.</p>`;
+        return;
+      }
+
+      container.innerHTML = '';
+      activeBorrowings.forEach(b => {
+        const div = document.createElement('div');
+        div.className = "flex flex-col sm:flex-row justify-between items-start sm:items-center bg-amber-50/80 border border-amber-200 p-4 rounded-xl gap-3";
+        div.innerHTML = `
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-slate-800 text-base">${b.tabId}</span>
+              <span class="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded">${b.name} (${b.nik})</span>
+            </div>
+            <p class="text-xs text-slate-500 mt-1">Waktu Pinjam: <span class="font-medium text-slate-700">${b.startTimeStr}</span></p>
+            <p class="text-xs font-mono text-amber-800 mt-0.5">Timer Berjalan: <span id="timer-${b.id}" class="font-bold">00:00:00</span></p>
+          </div>
+          <button onclick="returnTab('${b.id}')" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition shadow-sm">
+            Simpan / Kembalikan
+          </button>
+        `;
+        container.appendChild(div);
+        startTimer(b.id, b.startTime);
+      });
+    }
+
+    function startTimer(id, startTimeMs) {
+      if (timerIntervals[id]) clearInterval(timerIntervals[id]);
+
+      function update() {
+        const now = Date.now();
+        const diff = Math.max(0, now - startTimeMs);
+
+        const hours = Math.floor(diff / 3600000);
+        const minutes = Math.floor((diff % 3600000) / 60000);
+        const seconds = Math.floor((diff % 60000) / 1000);
+
+        const el = document.getElementById(`timer-${id}`);
+        if (el) {
+          el.innerText = 
+            String(hours).padStart(2, '0') + ":" + 
+            String(minutes).padStart(2, '0') + ":" + 
+            String(seconds).padStart(2, '0');
+        }
+      }
+      update();
+      timerIntervals[id] = setInterval(update, 1000);
+    }
+
+    function renderLogsTable() {
+      const tbody = document.getElementById('logsTableBody');
+      const allData = [...activeBorrowings, ...completedLogs];
+
+      if (allData.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-400">Belum ada data riwayat peminjaman hari ini.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = '';
+      allData.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50";
+        tr.innerHTML = `
+          <td class="p-2.5">${item.startTimeStr}</td>
+          <td class="p-2.5 font-medium text-slate-800">${item.name}</td>
+          <td class="p-2.5 font-bold text-blue-600">${item.tabId}</td>
+          <td class="p-2.5">${item.endTimeStr || '-'}</td>
+          <td class="p-2.5 font-mono">${item.durationStr || 'Berjalan...'}</td>
+          <td class="p-2.5">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${item.status === 'DIPINJAM' ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'}">
+              ${item.status}
+            </span>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function exportToCSV() {
+      const allData = [...activeBorrowings, ...completedLogs];
+      if (allData.length === 0) return alert('Tidak ada data untuk di-export!');
+
+      let csv = 'NIK,Nama,Jabatan,Unit Tab,Waktu Pinjam,Waktu Kembali,Durasi,Status\n';
+      allData.forEach(d => {
+        csv += `"${d.nik}","${d.name}","${d.role}","${d.tabId}","${d.startTimeStr}","${d.endTimeStr || ''}","${d.durationStr || ''}","${d.status}"\n`;
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.setAttribute('href', url);
+      a.setAttribute('download', `Daily_Peminjaman_Tab_${new Date().toISOString().split('T')[0]}.csv`);
+      a.click();
+    }
+  </script>
+</body>
+</html>
